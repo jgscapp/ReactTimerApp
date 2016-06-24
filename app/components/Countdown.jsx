@@ -1,6 +1,7 @@
 var React = require('react');
 var Clock = require('Clock');
 var CountdownForm = require('CountdownForm');
+var Controls = require('Controls');
 
 var Countdown = React.createClass({
   getInitialState: function () {
@@ -12,14 +13,18 @@ var Countdown = React.createClass({
   //use component lifecycle method to manipulate the countdownStatus
   //this function is called automatically after props or state is updated
   //and pass the previous props and previous states
-  componentDidUpdate: function (prefProps, prevState) {
+  componentDidUpdate: function (prevProps, prevState) {
     if (this.state.countdownStatus !== prevState.countdownStatus) {
       switch (this.state.countdownStatus) {
         case 'started':
           this.startTimer();
           break;
-        default:
-
+        case 'stopped':
+          this.setState({count: 0});
+        case 'paused':
+          clearInterval(this.timer)
+          this.timer = undefined;
+          break;
       }
     }
   },
@@ -29,7 +34,7 @@ var Countdown = React.createClass({
         var newCount = this.state.count - 1;
         this.setState({
           count: newCount >= 0 ? newCount : 0
-        });        
+        });
       }, 1000);
   },
   handleSetCountdown: function (seconds) {
@@ -38,13 +43,23 @@ var Countdown = React.createClass({
       countdownStatus: 'started'
     });
   },
+  handleStatusChange: function (newStatus) {
+    this.setState({countdownStatus: newStatus});
+  },
   render : function () {
-    var {count} = this.state;
+    var {count, countdownStatus} = this.state;
+    var renderControlArea = () => {
+      if (countdownStatus !== 'stopped') {
+        return <Controls countdownStatus={countdownStatus} onStatusChange={this.handleStatusChange}/>;
+      } else {
+        return <CountdownForm onSetCountdown={this.handleSetCountdown}/>;
+      }
+    };
 
     return (
       <div>
         <Clock totalSeconds={count}/>
-        <CountdownForm onSetCountdown={this.handleSetCountdown}/>
+        {renderControlArea()}
     </div>
     );
   }
