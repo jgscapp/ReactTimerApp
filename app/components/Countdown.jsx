@@ -28,13 +28,36 @@ var Countdown = React.createClass({
       }
     }
   },
+//   componentWillUpdate: function (nextProps, nextState) {
+//
+//   },
+//
+//   //this method get fired when your component first get mounted
+//   //render to the screen
+// componentWillMount: function () {
+//   console.log('componentWillMount');
+// },
+// //get fired right after everything is reders to the DOM
+// componentDidMount: function () {
+//     console.log('componentDidMount');
+// },
 
+  //this method gets fired by react right before your component
+  //is removed from the DOM
+ componentWillUnmount: function () {
+   clearInterval(this.timer);
+   this.timer = undefined;
+ },
   startTimer: function () {
       this.timer = setInterval(() => {
         var newCount = this.state.count - 1;
         this.setState({
           count: newCount >= 0 ? newCount : 0
         });
+
+        if (newCount === 0 ) {
+          this.setState({countdownStatus: 'stopped'});
+        }
       }, 1000);
   },
   handleSetCountdown: function (seconds) {
